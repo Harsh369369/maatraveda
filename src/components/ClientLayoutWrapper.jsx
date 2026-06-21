@@ -13,7 +13,7 @@ export default function ClientLayoutWrapper({ children }) {
   const isOnboarding = pathname === '/onboarding';
   
   // Show bottom nav ONLY on these main tab paths
-  const showBottomNav = ['/', '/cart', '/profile', '/products'].includes(pathname);
+  const showBottomNav = ['/', '/profile', '/products', '/wishlist'].includes(pathname);
 
   if (isOnboarding) {
     return <>{children}</>;

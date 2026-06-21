@@ -7,15 +7,67 @@ import {
   Sparkles, ArrowRight, CheckCircle, Flame, ShoppingBag
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+
+const HERO_SLIDES = [
+  {
+    badge: 'Up to 15% Off',
+    title: 'Ancient Herbal Wisdom, \nValidated by Modern Science.',
+    bgGradient: 'from-[#DFE6EE] to-[#E2EAF4]',
+    textColor: '#4A150E',
+    badgeBg: 'bg-mv-olive/10 text-mv-olive',
+    images: [
+      'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=150&auto=format&fit=crop'
+    ]
+  },
+  {
+    badge: 'Pure Ayurvedic Care',
+    title: '100% Organic Oils \n& Cold-Pressed Elixirs.',
+    bgGradient: 'from-[#F5EBE6] to-[#EADED7]',
+    textColor: '#4A2E15',
+    badgeBg: 'bg-[#4A2E15]/10 text-[#4A2E15]',
+    images: [
+      'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=150&auto=format&fit=crop'
+    ]
+  },
+  {
+    badge: 'Premium Glow Series',
+    title: 'Kashmiri Saffron, \nFor An Ageless Radiance.',
+    bgGradient: 'from-[#FCF3E3] to-[#F7E7C4]',
+    textColor: '#5C3E08',
+    badgeBg: 'bg-[#5C3E08]/10 text-[#5C3E08]',
+    images: [
+      'https://images.unsplash.com/photo-1590156546746-c237073c6838?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=150&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=150&auto=format&fit=crop'
+    ]
+  }
+];
 
 const Home = () => {
   const { user, userIsAuthenticated } = useAuth();
+  const { cartItems, addToCart, updateQuantity } = useCart();
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('matree_wishlist');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {}
+      }
+    }
+    return [];
+  });
 
   // Category Icons (matching circular designs in Figma)
   const CATEGORIES = [
@@ -51,6 +103,13 @@ const Home = () => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const slideTimer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(slideTimer);
+  }, []);
+
   // Filter products based on search & category selection
   useEffect(() => {
     let result = products;
@@ -69,15 +128,18 @@ const Home = () => {
   const toggleFavorite = (productId, e) => {
     e.preventDefault();
     e.stopPropagation();
+    let updated;
     if (favorites.includes(productId)) {
-      setFavorites(favorites.filter(id => id !== productId));
+      updated = favorites.filter(id => id !== productId);
     } else {
-      setFavorites([...favorites, productId]);
+      updated = [...favorites, productId];
     }
+    setFavorites(updated);
+    localStorage.setItem('matree_wishlist', JSON.stringify(updated));
   };
 
   return (
-    <div className="space-y-8 pb-12 select-none">
+    <div className="space-y-5 md:space-y-8 pb-12 select-none">
       
       {/* ========================================================================= */}
       {/* 1. MOBILE HEADER - Location Picker, Heart & Profile Avatar (Figma Mockup) */}
@@ -97,7 +159,7 @@ const Home = () => {
         
         <div className="flex items-center gap-2.5">
           {/* Notifications/Heart */}
-          <Link to="/products" className="p-2 rounded-full border border-mv-dark-green/5 bg-white text-mv-olive hover:shadow-sm">
+          <Link to="/wishlist" className="p-2 rounded-full border border-mv-dark-green/5 bg-white text-mv-olive hover:shadow-sm">
             <Heart className="h-4.5 w-4.5 stroke-[2.5]" />
           </Link>
           {/* User Avatar */}
@@ -111,18 +173,18 @@ const Home = () => {
       {/* 2. SLIDING HERO BANNER (Figma Mockup - Ancient Wisdom, 15% Off) */}
       {/* ========================================================================= */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="relative rounded-[2.5rem] bg-gradient-to-r from-[#DFE6EE] to-[#E2EAF4] overflow-hidden p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between border-4 border-white shadow-md">
-          <div className="space-y-4 max-w-md text-left z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mv-olive/10 text-mv-olive text-[10px] font-black uppercase tracking-wider font-sans">
-              <Flame className="h-3.5 w-3.5 fill-current" /> Up to 15% Off
+        <div className={`relative rounded-3xl md:rounded-[2.5rem] bg-gradient-to-r ${HERO_SLIDES[currentSlide].bgGradient} overflow-hidden p-4 sm:p-8 md:p-10 flex flex-col md:flex-row items-center justify-between border-4 border-white shadow-md transition-all duration-700 ease-in-out`}>
+          <div className="space-y-2 md:space-y-4 max-w-md text-left z-10 transition-all duration-500 ease-in-out">
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${HERO_SLIDES[currentSlide].badgeBg} text-[10px] font-black uppercase tracking-wider font-sans`}>
+              <Flame className="h-3.5 w-3.5 fill-current" /> {HERO_SLIDES[currentSlide].badge}
             </div>
-            <h1 className="font-sans text-xl sm:text-2xl lg:text-3xl font-black text-[#4A150E] leading-tight tracking-tight">
-              Ancient Herbal Wisdom, <br />Validated by Modern Science.
+            <h1 className="font-sans text-lg sm:text-2xl lg:text-3xl font-black leading-tight tracking-tight whitespace-pre-line" style={{ color: HERO_SLIDES[currentSlide].textColor }}>
+              {HERO_SLIDES[currentSlide].title}
             </h1>
-            <div className="pt-2">
+            <div className="pt-1">
               <Link 
                 to="/products"
-                className="inline-block bg-mv-olive hover:bg-mv-deep-green text-cream font-sans text-xs font-black py-3.5 px-8 rounded-full shadow-md transition-all uppercase tracking-wider cursor-pointer"
+                className="inline-block bg-mv-olive hover:bg-mv-deep-green text-cream font-sans text-[10px] md:text-xs font-black py-2.5 px-5 md:py-3.5 md:px-8 rounded-full shadow-md transition-all uppercase tracking-wider cursor-pointer"
               >
                 Shop now
               </Link>
@@ -130,23 +192,30 @@ const Home = () => {
           </div>
 
           {/* Banner Images (overlapping layout similar to mockup) */}
-          <div className="relative h-44 sm:h-52 w-full md:w-[280px] mt-6 md:mt-0 flex items-center justify-center select-none">
-            <div className="absolute right-0 w-24 h-36 rounded-2xl overflow-hidden shadow-md rotate-6 border border-white">
-              <img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=150&auto=format&fit=crop" className="w-full h-full object-cover" alt="product1" />
+          <div className="relative h-28 md:h-44 lg:h-52 w-full md:w-[280px] mt-4 md:mt-0 flex items-center justify-center select-none transition-all duration-500">
+            <div className="absolute right-0 w-16 h-24 md:w-24 md:h-36 rounded-xl md:rounded-2xl overflow-hidden shadow-md rotate-6 border border-white transition-all duration-500">
+              <img src={HERO_SLIDES[currentSlide].images[0]} className="w-full h-full object-cover" alt="product1" />
             </div>
-            <div className="absolute left-1/2 -translate-x-1/2 w-26 h-40 rounded-2xl overflow-hidden shadow-lg border-2 border-white z-10 -rotate-3">
-              <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=150&auto=format&fit=crop" className="w-full h-full object-cover" alt="product2" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-18 h-28 md:w-26 md:h-40 rounded-xl md:rounded-2xl overflow-hidden shadow-lg border-2 border-white z-10 -rotate-3 transition-all duration-500">
+              <img src={HERO_SLIDES[currentSlide].images[1]} className="w-full h-full object-cover" alt="product2" />
             </div>
-            <div className="absolute left-0 w-22 h-32 rounded-2xl overflow-hidden shadow-sm -rotate-12 border border-white">
-              <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=150&auto=format&fit=crop" className="w-full h-full object-cover" alt="product3" />
+            <div className="absolute left-0 w-14 h-22 md:w-22 md:h-32 rounded-xl md:rounded-2xl overflow-hidden shadow-sm -rotate-12 border border-white transition-all duration-500">
+              <img src={HERO_SLIDES[currentSlide].images[2]} className="w-full h-full object-cover" alt="product3" />
             </div>
           </div>
           
           {/* Slide dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1">
-            <span className="w-4 h-1 rounded-full bg-mv-dark-green"></span>
-            <span className="w-1 h-1 rounded-full bg-mv-dark-green/35"></span>
-            <span className="w-1 h-1 rounded-full bg-mv-dark-green/35"></span>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+            {HERO_SLIDES.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  currentSlide === idx ? 'w-4 h-1.5 bg-mv-dark-green' : 'w-1.5 h-1.5 bg-mv-dark-green/35'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -179,10 +248,10 @@ const Home = () => {
         <div className="flex items-center justify-between">
           <h3 className="font-sans text-base sm:text-lg font-black text-mv-dark-green">Categories</h3>
           <button 
-            onClick={() => setActiveCategory(activeCategory === 'All' ? 'Cleanse' : 'All')}
+            onClick={() => setActiveCategory('All')}
             className="text-xs font-black text-charcoal/40 uppercase hover:text-mv-olive transition-colors cursor-pointer"
           >
-            {activeCategory === 'All' ? 'Filter' : 'Clear Filter'}
+            See All
           </button>
         </div>
 
@@ -192,7 +261,7 @@ const Home = () => {
             onClick={() => setActiveCategory('All')}
             className="flex flex-col items-center gap-2 cursor-pointer shrink-0 group"
           >
-            <div className={`w-[70px] h-[70px] rounded-full border-2 flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ${
+            <div className={`w-[70px] h-[70px] rounded-2xl border-2 flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ${
               activeCategory === 'All' ? 'border-mv-olive bg-mv-olive text-cream scale-102' : 'border-white bg-white group-hover:border-mv-olive/30'
             }`}>
               <span className="font-sans text-[11px] font-black uppercase tracking-wider">All</span>
@@ -210,7 +279,7 @@ const Home = () => {
                 onClick={() => setActiveCategory(cat.name)}
                 className="flex flex-col items-center gap-2 cursor-pointer shrink-0 group"
               >
-                <div className={`w-[70px] h-[70px] rounded-full border-2 shadow-md overflow-hidden transition-all duration-300 relative ${
+                <div className={`w-[70px] h-[70px] rounded-2xl border-2 shadow-md overflow-hidden transition-all duration-300 relative ${
                   active ? 'border-mv-olive scale-102' : 'border-white group-hover:border-mv-olive/30'
                 }`}>
                   <img src={cat.image} className="w-full h-full object-cover pointer-events-none" alt={cat.name} />
@@ -254,6 +323,8 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {filteredProducts.map((product) => {
               const isFav = favorites.includes(product._id);
+              const cartItem = cartItems.find(item => item.product._id === product._id);
+              const quantity = cartItem ? cartItem.quantity : 0;
               return (
                 <div key={product._id} className="bg-white rounded-3xl p-3 shadow-md hover:shadow-lg transition-all flex flex-col justify-between border border-mv-dark-green/5 group relative">
                   
@@ -296,13 +367,43 @@ const Home = () => {
                       <span className="text-[10px] font-sans text-charcoal/30 line-through">₹{Math.floor(product.price * 1.25)}</span>
                     </div>
                     
-                    <Link
-                      to={`/products/${product._id}`}
-                      className="p-2 bg-mv-olive text-cream rounded-full hover:bg-mv-deep-green shadow-sm transition-colors cursor-pointer"
-                      aria-label="View Details"
-                    >
-                      <ShoppingBag className="h-3.5 w-3.5" />
-                    </Link>
+                    {quantity > 0 ? (
+                      <div className="flex items-center gap-2 bg-mv-olive/10 border border-mv-olive/20 rounded-full px-2 py-0.5 shadow-inner">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateQuantity(product._id, quantity - 1);
+                          }}
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-mv-olive hover:bg-mv-olive hover:text-cream transition-colors text-xs font-black cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="text-xs font-black text-mv-dark-green min-w-[12px] text-center">{quantity}</span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateQuantity(product._id, quantity + 1);
+                          }}
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-mv-olive hover:bg-mv-olive hover:text-cream transition-colors text-xs font-black cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(product, 1);
+                        }}
+                        className="p-2 bg-mv-olive text-cream rounded-full hover:bg-mv-deep-green shadow-sm transition-colors cursor-pointer"
+                        aria-label="Add to Cart"
+                      >
+                        <ShoppingBag className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
 
                 </div>

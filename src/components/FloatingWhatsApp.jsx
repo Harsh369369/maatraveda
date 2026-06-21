@@ -13,7 +13,7 @@ const FloatingWhatsApp = () => {
   return (
     <button
       onClick={handleOpenWhatsApp}
-      className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 hover:bg-[#20ba5a] active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer group animate-bounce"
+      className="fixed bottom-24 right-6 md:bottom-6 md:right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 hover:bg-[#20ba5a] active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer group animate-bounce"
       style={{ boxShadow: '0 8px 30px rgba(37, 211, 102, 0.35)' }}
       aria-label="Chat on WhatsApp"
       title="Chat with Ayurvedic Vaidya"

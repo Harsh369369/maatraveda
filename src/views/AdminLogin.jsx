@@ -53,7 +53,7 @@ const AdminLogin = () => {
     <div className="min-h-[70vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
       
       {/* Admin Login Card Panel */}
-      <div className="max-w-md w-full bg-cream border border-forest/10 p-8 sm:p-10 rounded-2xl shadow-lg space-y-8 text-center relative overflow-hidden">
+      <div className="max-w-md w-full bg-white border border-forest/10 p-8 sm:p-10 rounded-2xl shadow-lg space-y-8 text-center relative overflow-hidden">
         
         {/* Top Gold Corner decoration */}
         <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold/30 rounded-tl-2xl pointer-events-none"></div>
@@ -93,7 +93,7 @@ const AdminLogin = () => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="e.g. admin@matree.com"
-              className="w-full px-3.5 py-2.5 bg-cream border border-forest/20 rounded-lg text-sm text-charcoal focus:outline-none focus:border-forest"
+              className="w-full px-3.5 py-2.5 bg-[#FDFBF7] border border-forest/20 rounded-lg text-sm text-charcoal focus:outline-none focus:border-forest"
               required
               disabled={submitting}
             />
@@ -110,7 +110,7 @@ const AdminLogin = () => {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="••••••••••••"
-              className="w-full px-3.5 py-2.5 bg-cream border border-forest/20 rounded-lg text-sm text-charcoal focus:outline-none focus:border-forest"
+              className="w-full px-3.5 py-2.5 bg-[#FDFBF7] border border-forest/20 rounded-lg text-sm text-charcoal focus:outline-none focus:border-forest"
               required
               disabled={submitting}
             />

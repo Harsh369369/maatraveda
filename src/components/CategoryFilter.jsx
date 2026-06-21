@@ -35,7 +35,7 @@ const CategoryFilter = ({ activeCategory, onCategoryChange }) => {
               <button
                 key={cat.id}
                 onClick={() => onCategoryChange(cat.id)}
-                className={`flex items-center gap-2 py-3 px-5 sm:px-6 rounded-full font-sans text-sm font-bold tracking-wide transition-all duration-300 shadow-sm shrink-0 ${
+                className={`flex items-center gap-2 py-3 px-5 sm:px-6 rounded-xl font-sans text-sm font-bold tracking-wide transition-all duration-300 shadow-sm shrink-0 ${
                   isSelected
                     ? 'bg-forest text-cream shadow-forest/15 translate-y-[-1px]'
                     : 'bg-cream-dark/50 text-charcoal/80 hover:bg-cream-dark hover:text-forest'

@@ -21,6 +21,7 @@ import Checkout from './views/Checkout';
 import OrderConfirmation from './views/OrderConfirmation';
 import Profile from './views/Profile';
 import Onboarding from './views/Onboarding';
+import Wishlist from './views/Wishlist';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
           </ClientLayoutWrapper>
         </Router>

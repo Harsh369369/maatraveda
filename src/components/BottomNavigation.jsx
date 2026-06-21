@@ -8,7 +8,7 @@ export default function BottomNavigation() {
   const router = useRouter();
 
   // Show bottom nav ONLY on the main tab pages
-  const allowedPaths = ['/', '/cart', '/profile', '/products'];
+  const allowedPaths = ['/', '/profile', '/products', '/wishlist'];
   if (!allowedPaths.includes(pathname)) {
     return null;
   }
@@ -16,7 +16,7 @@ export default function BottomNavigation() {
   const navItems = [
     { id: 'home', label: 'Home', path: '/', icon: Home },
     { id: 'cart', label: 'Cart', path: '/cart', icon: ShoppingCart },
-    { id: 'favorites', label: 'Shop', path: '/products', icon: Heart }, // Mapped to products catalog
+    { id: 'favorites', label: 'Wishlist', path: '/wishlist', icon: Heart },
     { id: 'profile', label: 'Profile', path: '/profile', icon: User }
   ];
 

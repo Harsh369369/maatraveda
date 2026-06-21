@@ -184,7 +184,7 @@ const Cart = () => {
         {/* 3. STICKY BOTTOM ROW - Discount summary, Check out */}
         {/* ========================================== */}
         {cartItems.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-mv-dark-green/5 px-6 py-5 space-y-4 z-20 shadow-md rounded-t-3xl select-none">
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t border-mv-dark-green/5 px-6 py-5 space-y-4 z-20 shadow-md rounded-t-3xl select-none">
             
             {/* Discount Code Input Box */}
             {appliedCoupon ? (

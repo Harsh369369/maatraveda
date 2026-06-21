@@ -66,13 +66,22 @@ export const AuthProvider = ({ children }) => {
   // ADMIN PORTAL METHODS (Mocked)
   // ------------------------------------------
   const login = async (email, password) => {
-    // Simply accept any login for UI testing, generate mock token
+    // Mimic real server request delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (!email || !email.includes('@')) {
+      return { success: false, message: 'Please enter a valid administrative email address.' };
+    }
+    if (!password || password.length < 4) {
+      return { success: false, message: 'Password coordinates must be at least 4 characters long.' };
+    }
+
     const token = 'mock_admin_token_' + Math.random().toString(36).substring(2);
     localStorage.setItem('matree_admin_token', token);
     setAdminToken(token);
     setAdmin({
       id: 'admin_mock_id',
-      email: email || 'admin@matriveda.com'
+      email: email
     });
     return { success: true };
   };
@@ -87,7 +96,19 @@ export const AuthProvider = ({ children }) => {
   // CUSTOMER WEBSITE METHODS (Mocked)
   // ------------------------------------------
   const userRegister = async (name, email, password) => {
-    // Simply accept any registration for UI testing
+    // Mimic real server request delay
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    if (!name || name.trim().length < 2) {
+      return { success: false, message: 'Your name must contain at least 2 characters.' };
+    }
+    if (!email || !email.includes('@')) {
+      return { success: false, message: 'Please enter a valid email coordinates.' };
+    }
+    if (!password || password.length < 6) {
+      return { success: false, message: 'Password must be at least 6 characters.' };
+    }
+
     const token = 'mock_user_token_' + Math.random().toString(36).substring(2);
     localStorage.setItem('matree_user_token', token);
     setUserToken(token);
@@ -100,13 +121,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const userLogin = async (email, password) => {
-    // Simply accept any login for UI testing
+    // Mimic real server request delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (!email || !email.includes('@')) {
+      return { success: false, message: 'Please enter a valid email address.' };
+    }
+    if (!password || password.length < 4) {
+      return { success: false, message: 'Password must be at least 4 characters.' };
+    }
+
     const token = 'mock_user_token_' + Math.random().toString(36).substring(2);
     localStorage.setItem('matree_user_token', token);
     setUserToken(token);
     setUser({
       id: 'user_mock_id',
-      name: 'Test Customer',
+      name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' '), // extract name from email
       email: email
     });
     return { success: true };

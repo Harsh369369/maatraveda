@@ -10,11 +10,22 @@ import {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, cartItems, updateQuantity } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  
+  const cartItem = product ? cartItems.find(item => item.product._id === product._id) : null;
+  const currentCartQty = cartItem ? cartItem.quantity : 0;
+  const displayQty = currentCartQty > 0 ? currentCartQty : quantity;
+
+  useEffect(() => {
+    if (currentCartQty === 0) {
+      setQuantity(1);
+    }
+  }, [currentCartQty]);
+
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [successMsg, setSuccessMsg] = useState(false);
   const [isFav, setIsFav] = useState(false);
@@ -37,11 +48,21 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleQtyChange = (type) => {
-    if (type === 'dec' && quantity > 1) {
-      setQuantity(quantity - 1);
+    if (type === 'dec') {
+      if (currentCartQty > 0) {
+        updateQuantity(product._id, currentCartQty - 1);
+      } else {
+        if (quantity > 1) {
+          setQuantity(quantity - 1);
+        }
+      }
     }
     if (type === 'inc') {
-      setQuantity(quantity + 1);
+      if (currentCartQty > 0) {
+        updateQuantity(product._id, currentCartQty + 1);
+      } else {
+        setQuantity(quantity + 1);
+      }
     }
   };
 
@@ -202,7 +223,7 @@ const ProductDetail = () => {
         {/* ========================================== */}
         {/* 4. STICKY BOTTOM ROW - Add to Cart + Qty Pill */}
         {/* ========================================== */}
-        <div className="sticky bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-mv-dark-green/5 px-6 py-4 flex items-center justify-between gap-4 z-20 shadow-md select-none rounded-t-3xl">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t border-mv-dark-green/5 px-6 py-4 flex items-center justify-between gap-4 z-20 shadow-md select-none rounded-t-3xl">
           
           {/* Qty Selector Pill */}
           <div className="flex items-center bg-mv-input-bg rounded-full px-1.5 py-1 shadow-inner border border-mv-dark-green/5 shrink-0">
@@ -214,7 +235,7 @@ const ProductDetail = () => {
               <Minus className="h-3.5 w-3.5" />
             </button>
             <span className="px-4 text-xs font-black font-sans text-mv-dark-green">
-              {quantity < 10 ? `0${quantity}` : quantity}
+              {displayQty < 10 ? `0${displayQty}` : displayQty}
             </span>
             <button
               onClick={() => handleQtyChange('inc')}
@@ -225,13 +246,22 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            className="flex-grow bg-mv-olive hover:bg-mv-deep-green text-cream font-sans text-xs font-black py-4 px-6 rounded-full shadow-md transition-colors flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
-          >
-            <ShoppingCart className="h-4 w-4" /> Add to Cart
-          </button>
+          {/* Add to Cart or Go to Cart Button */}
+          {currentCartQty > 0 ? (
+            <button
+              onClick={() => navigate('/cart')}
+              className="flex-grow bg-mv-dark-green hover:bg-[#082200] text-cream font-sans text-xs font-black py-4 px-6 rounded-full shadow-md transition-colors flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+            >
+              <ShoppingBag className="h-4 w-4" /> Go to Cart
+            </button>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              className="flex-grow bg-mv-olive hover:bg-mv-deep-green text-cream font-sans text-xs font-black py-4 px-6 rounded-full shadow-md transition-colors flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+            >
+              <ShoppingCart className="h-4 w-4" /> Add to Cart
+            </button>
+          )}
 
         </div>
 

@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { ShoppingCart, Eye, Sparkles } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
 
   const {
     _id,
@@ -19,6 +19,9 @@ const ProductCard = ({ product }) => {
     isFeatured,
     inStock
   } = product;
+
+  const cartItem = cartItems ? cartItems.find((item) => item.product._id === _id) : null;
+  const cartQty = cartItem ? cartItem.quantity : 0;
 
   const displayImage = images && images[0] ? images[0] : 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop';
 
@@ -130,12 +133,21 @@ const ProductCard = ({ product }) => {
             </button>
           ) : (
             <div className="flex gap-2">
-              <button
-                onClick={() => addToCart(product, 1)}
-                className="flex-grow bg-forest text-cream hover:bg-leaf font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5"
-              >
-                <ShoppingCart className="h-4 w-4" /> Add To Cart
-              </button>
+              {cartQty > 0 ? (
+                <Link
+                  to="/cart"
+                  className="flex-grow bg-mv-dark-green text-cream hover:bg-[#082200] font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5"
+                >
+                  <ShoppingCart className="h-4 w-4" /> Go to Cart
+                </Link>
+              ) : (
+                <button
+                  onClick={() => addToCart(product, 1)}
+                  className="flex-grow bg-forest text-cream hover:bg-leaf font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5"
+                >
+                  <ShoppingCart className="h-4 w-4" /> Add To Cart
+                </button>
+              )}
               <Link
                 to={`/products/${_id}`}
                 className="bg-cream-dark/50 border border-forest/10 text-forest hover:bg-cream-dark p-3 rounded-lg transition-colors flex items-center justify-center"
