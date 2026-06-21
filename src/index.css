@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Inter:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #2D5016;       /* Deep Forest Green */
+  --color-gold: #C9860A;         /* Turmeric Gold */
+  --color-cream: #FAF7F2;        /* Soft Off-White */
+  --color-sandstone: #F5ECD7;    /* Warm Sandstone */
+  --color-charcoal: #1C1C1A;     /* Dark Charcoal for text */
+  --color-terracotta: #C4622D;   /* Clay earth accent */
+  --color-leaf: #3B6B20;         /* Active hover herbal green */
+
+  /* Figma Specific Palette */
+  --color-mv-dark-green: #0D3500;
+  --color-mv-deep-green: #305700;
+  --color-mv-olive: #5B7917;
+  --color-mv-lime: #899D31;
+  --color-mv-yellow-green: #B9C24B;
+  --color-mv-input-bg: #FCF4F4;
+
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: #FAF7F2;
+  color: #1C1C1A;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Scrollbar matching the botanical theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FDF6EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D5A27;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3E7C38;
+}
+
+/* Dynamic glow animations and organic botanical floaters */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Premium gradient overlay for cards */
+.herbal-card-glow {
+  position: relative;
+  overflow: hidden;
+}
+.herbal-card-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(45, 90, 39, 0.08);
+  border-radius: inherit;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.herbal-card-glow:hover::after {
+  border-color: rgba(45, 90, 39, 0.25);
+  box-shadow: 0 4px 20px rgba(45, 90, 39, 0.05);
+}
+
+/* Custom scrollbar utility to hide scrollbars while maintaining native swipe/scrollability */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
