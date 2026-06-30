@@ -8,7 +8,7 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
