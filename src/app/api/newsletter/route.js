@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import Subscriber from '../../../models/Subscriber';
-import { verifyAdmin } from '../../../utils/auth';
-import connectDB from '../../../config/db';
+import Subscriber from '../../../models/Subscriber.js';
+import { verifyAdmin } from '../../../utils/auth.js';
+import connectDB from '../../../config/db.js';
 
 export async function POST(request) {
   try {

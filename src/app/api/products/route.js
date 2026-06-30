@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import Product from '../../../models/Product';
-import { verifyAdmin } from '../../../utils/auth';
-import connectDB from '../../../config/db';
+import Product from '../../../models/Product.js';
+import { verifyAdmin } from '../../../utils/auth.js';
+import connectDB from '../../../config/db.js';
 
 export async function GET(request) {
   try {

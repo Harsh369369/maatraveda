@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import Admin from '../models/Admin';
-import User from '../models/User';
-import connectDB from '../config/db';
+import Admin from '../models/Admin.js';
+import User from '../models/User.js';
+import connectDB from '../config/db.js';
 
 export async function verifyAdmin(request) {
   await connectDB();

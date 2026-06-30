@@ -11,6 +11,10 @@ class User {
     this.name = data.name;
     this.email = typeof data.email === 'string' ? data.email.toLowerCase() : '';
     this.password = data.password;
+    this.address = data.address || '';
+    this.city = data.city || '';
+    this.state = data.state || '';
+    this.pincode = data.pincode || '';
     this.createdAt = data.createdAt || new Date().toISOString();
   }
 
@@ -72,6 +76,20 @@ class User {
       batch.delete(doc.ref);
     });
     await batch.commit();
+  }
+
+  async save() {
+    const payload = {
+      name: this.name,
+      email: this.email,
+      password: this.password,
+      address: this.address || '',
+      city: this.city || '',
+      state: this.state || '',
+      pincode: this.pincode || '',
+      createdAt: this.createdAt
+    };
+    await getCollection().doc(this.id).set(payload);
   }
 }
 

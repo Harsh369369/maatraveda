@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { verifyAdmin } from '../../../../utils/auth';
+import { verifyAdmin } from '../../../../utils/auth.js';
 
 export async function GET(request) {
   try {

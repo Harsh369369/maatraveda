@@ -92,3 +92,119 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Premium Dark Forest Mode overrides */
+html.dark body {
+  background-color: #060c02 !important;
+  color: #f3f7f0 !important;
+}
+
+/* Background overrides for sections and cards */
+html.dark .bg-white,
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-cream\/10,
+html.dark .bg-cream {
+  background-color: #0a1405 !important;
+}
+
+html.dark .bg-mv-input-bg,
+html.dark .bg-mv-input-bg\/70 {
+  background-color: #12240b !important;
+}
+
+/* Borders and lines */
+html.dark .border-mv-dark-green\/5,
+html.dark .border-charcoal\/10,
+html.dark .divide-mv-dark-green\/5 > :not([hidden]) ~ :not([hidden]),
+html.dark .border-b,
+html.dark .border-t,
+html.dark .border {
+  border-color: rgba(185, 194, 75, 0.15) !important;
+}
+
+/* Text color overrides */
+html.dark .text-mv-dark-green {
+  color: #f1f6ed !important;
+}
+
+html.dark .text-charcoal,
+html.dark .text-charcoal\/80 {
+  color: #e2ebd9 !important;
+}
+
+html.dark .text-charcoal\/70,
+html.dark .text-charcoal\/60 {
+  color: #c9d5be !important;
+}
+
+html.dark .text-charcoal\/50,
+html.dark .text-charcoal\/45,
+html.dark .text-charcoal\/40,
+html.dark .text-charcoal\/30 {
+  color: #92a483 !important;
+}
+
+/* Form input elements */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #12240b !important;
+  color: #fafcf9 !important;
+  border-color: rgba(185, 194, 75, 0.25) !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #b9c24b !important;
+  box-shadow: 0 0 0 2px rgba(185, 194, 75, 0.2) !important;
+}
+
+/* Buttons and accents */
+html.dark .bg-mv-olive {
+  background-color: #4b6413 !important;
+}
+
+html.dark .hover\:bg-mv-deep-green:hover {
+  background-color: #374a0e !important;
+}
+
+html.dark .text-mv-olive {
+  color: #b9c24b !important;
+}
+
+html.dark .hover\:bg-mv-input-bg:hover {
+  background-color: #12240b !important;
+}
+
+/* Specific elements like scrollbar track & thumb */
+html.dark ::-webkit-scrollbar-track {
+  background: #060c02;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #4b6413;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5b7917;
+}
+
+/* Herbal timeline points and accents in dark mode */
+html.dark .bg-mv-yellow-green\/20 {
+  background-color: rgba(185, 194, 75, 0.15) !important;
+}
+
+html.dark .border-mv-olive\/30 {
+  border-color: rgba(185, 194, 75, 0.3) !important;
+}
+
+/* Glow overlays for premium card layouts */
+html.dark .herbal-card-glow::after {
+  border-color: rgba(185, 194, 75, 0.1);
+}
+
+html.dark .herbal-card-glow:hover::after {
+  border-color: rgba(185, 194, 75, 0.3);
+  box-shadow: 0 4px 20px rgba(185, 194, 75, 0.08);
+}

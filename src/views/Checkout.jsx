@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from '../utils/router-compat';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { orderServices, paymentServices } from '../services/api';
 import { ShieldCheck, Calendar, Info, ShoppingBag, ArrowLeft, CheckCircle, CreditCard, Landmark, Banknote } from 'lucide-react';
 
@@ -13,6 +14,7 @@ const INDIAN_STATES = [
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { user, userIsAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if cart is empty
@@ -32,6 +34,21 @@ const Checkout = () => {
     state: 'Karnataka',
     pincode: ''
   });
+
+  // Pre-fill user profile fields if authenticated
+  useEffect(() => {
+    if (userIsAuthenticated && user) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: user.name || prev.customerName,
+        email: user.email || prev.email,
+        address: user.address || prev.address,
+        city: user.city || prev.city,
+        state: user.state || prev.state,
+        pincode: user.pincode || prev.pincode
+      }));
+    }
+  }, [user, userIsAuthenticated]);
 
   const [paymentMethod, setPaymentMethod] = useState('UPI'); // UPI, CARD, NETBANKING, COD
   const [upiProvider, setUpiProvider] = useState('gpay'); // gpay, phonepe, paytm

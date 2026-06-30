@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import Product from './Product';
+import Product from './Product.js';
 
 const getDb = () => admin.firestore();
 const getCollection = () => getDb().collection('orders');
@@ -10,6 +10,7 @@ class Order {
     this.id = this._id;
     this.customerName = data.customerName;
     this.phone = data.phone;
+    this.email = data.email || '';
     this.address = data.address;
     this.city = data.city;
     this.state = data.state;
@@ -46,6 +47,7 @@ class Order {
     const payload = {
       customerName: data.customerName,
       phone: data.phone,
+      email: data.email || '',
       address: data.address,
       city: data.city,
       state: data.state,
@@ -82,9 +84,13 @@ class Order {
     return promise;
   }
 
-  static find() {
+  static find(filter = {}) {
     const promise = (async () => {
-      const snapshot = await getCollection().orderBy('createdAt', 'desc').get();
+      let query = getCollection();
+      if (filter && filter.email) {
+        query = query.where('email', '==', filter.email);
+      }
+      const snapshot = await query.orderBy('createdAt', 'desc').get();
       return snapshot.docs.map(doc => new Order({ _id: doc.id, ...doc.data() }));
     })();
 
@@ -133,6 +139,7 @@ class Order {
     const payload = {
       customerName: this.customerName,
       phone: this.phone,
+      email: this.email || '',
       address: this.address,
       city: this.city,
       state: this.state,

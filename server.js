@@ -17,6 +17,9 @@ import { GET as meGet } from './src/app/api/auth/me/route.js';
 import { POST as userLoginPost } from './src/app/api/auth/user/login/route.js';
 import { POST as userRegisterPost } from './src/app/api/auth/user/register/route.js';
 import { GET as userMeGet } from './src/app/api/auth/user/me/route.js';
+import { POST as userGoogleLoginPost } from './src/app/api/auth/user/google-login/route.js';
+import { GET as userOrdersGet } from './src/app/api/auth/user/orders/route.js';
+import { PUT as userUpdatePut } from './src/app/api/auth/user/update/route.js';
 import { POST as newsletterPost, GET as newsletterGet } from './src/app/api/newsletter/route.js';
 import { POST as ordersPost, GET as ordersGet } from './src/app/api/orders/route.js';
 import { PUT as orderStatusPut } from './src/app/api/orders/[id]/status/route.js';
@@ -89,6 +92,9 @@ app.get('/api/auth/me', adapt(meGet));
 app.post('/api/auth/user/login', adapt(userLoginPost));
 app.post('/api/auth/user/register', adapt(userRegisterPost));
 app.get('/api/auth/user/me', adapt(userMeGet));
+app.post('/api/auth/user/google-login', adapt(userGoogleLoginPost));
+app.get('/api/auth/user/orders', adapt(userOrdersGet));
+app.put('/api/auth/user/update', adapt(userUpdatePut));
 
 app.post('/api/newsletter', adapt(newsletterPost));
 app.get('/api/newsletter', adapt(newsletterGet));
@@ -110,7 +116,7 @@ app.delete('/api/products/:id', adapt(productDetailDelete));
 const distPath = path.join(__dirname, 'dist');
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.get('*', (req, res) => {
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }

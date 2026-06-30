@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import Order from '../../../models/Order';
-import Product from '../../../models/Product';
-import { verifyAdmin } from '../../../utils/auth';
-import connectDB from '../../../config/db';
+import Order from '../../../models/Order.js';
+import Product from '../../../models/Product.js';
+import { verifyAdmin } from '../../../utils/auth.js';
+import connectDB from '../../../config/db.js';
 
 export async function POST(request) {
   try {
@@ -10,6 +10,7 @@ export async function POST(request) {
     const {
       customerName,
       phone,
+      email,
       address,
       city,
       state,
@@ -46,6 +47,7 @@ export async function POST(request) {
     const order = await Order.create({
       customerName,
       phone,
+      email,
       address,
       city,
       state,
