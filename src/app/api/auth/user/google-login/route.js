@@ -59,6 +59,7 @@ export async function POST(request) {
       }
     });
   } catch (error) {
+    console.error('❌ Google Login Error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

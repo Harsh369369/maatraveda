@@ -13,21 +13,56 @@ const connectDB = async () => {
   const __dirname = path.dirname(__filename);
 
   if (admin.apps.length === 0) {
-    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || path.join(process.cwd(), 'firebase-service-account.json');
-    
+    let serviceAccount = null;
+    const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+    if (serviceAccountEnv) {
+      if (serviceAccountEnv.trim().startsWith('{')) {
+        try {
+          serviceAccount = JSON.parse(serviceAccountEnv);
+        } catch (err) {
+          console.error(`❌ Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY env var: ${err.message}`);
+        }
+      } else if (fs.existsSync(serviceAccountEnv)) {
+        try {
+          serviceAccount = JSON.parse(fs.readFileSync(serviceAccountEnv, 'utf8'));
+        } catch (err) {
+          console.error(`❌ Failed to read FIREBASE_SERVICE_ACCOUNT_KEY file: ${err.message}`);
+        }
+      }
+    }
+
+    if (!serviceAccount) {
+      const possiblePaths = [
+        path.join(process.cwd(), 'firebase-service-account.json'),
+        path.join(__dirname, '../../firebase-service-account.json'),
+        path.join(__dirname, '../../../../firebase-service-account.json')
+      ];
+
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          try {
+            serviceAccount = JSON.parse(fs.readFileSync(p, 'utf8'));
+            break;
+          } catch (err) {
+            console.error(`❌ Failed to read service account at ${p}: ${err.message}`);
+          }
+        }
+      }
+    }
+
     let useMock = false;
 
-    if (fs.existsSync(serviceAccountPath)) {
+    if (serviceAccount) {
       try {
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
         });
-        console.log('🍃 Firebase Connected via Service Account JSON');
+        console.log('🍃 Firebase Connected via Service Account Cert');
       } catch (error) {
-        console.error(`❌ Firebase cert loading error: ${error.message}`);
+        console.error(`❌ Firebase initialization error: ${error.message}`);
         admin.initializeApp({
-          projectId: process.env.FIREBASE_PROJECT_ID || 'matree-ayurveda'
+          projectId: process.env.FIREBASE_PROJECT_ID || 'maatraveda'
         });
       }
     } else {
@@ -48,12 +83,20 @@ const connectDB = async () => {
       if (emulatorRunning) {
         process.env.FIRESTORE_EMULATOR_HOST = host;
         admin.initializeApp({
-          projectId: process.env.FIREBASE_PROJECT_ID || 'matree-ayurveda'
+          projectId: process.env.FIREBASE_PROJECT_ID || 'maatraveda'
         });
         console.log(`🍃 Firebase Connected via Project ID to Emulator at ${host}`);
       } else {
-        console.log('⚠️ No Firebase credentials or active Firestore Emulator found. Enabling In-Memory DB Mock.');
-        useMock = true;
+        const isGcp = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.K_SERVICE || process.env.GAE_SERVICE;
+        if (isGcp) {
+          admin.initializeApp({
+            projectId: process.env.FIREBASE_PROJECT_ID || 'maatraveda'
+          });
+          console.log('🍃 Firebase Connected via Application Default Credentials');
+        } else {
+          console.log('⚠️ No Firebase credentials or active Firestore Emulator found. Enabling In-Memory DB Mock.');
+          useMock = true;
+        }
       }
     }
 
