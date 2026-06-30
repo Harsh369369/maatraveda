@@ -21,7 +21,7 @@ const Login = () => {
   // If already logged in, redirect to where they came from or home
   useEffect(() => {
     if (!userLoading && userIsAuthenticated) {
-      const fromPath = location.state?.from || '/products';
+      const fromPath = location.state?.from || '/';
       navigate(fromPath);
     }
   }, [userIsAuthenticated, userLoading, navigate, location]);
@@ -38,7 +38,7 @@ const Login = () => {
       const res = await userGoogleLogin(idToken);
       if (res.success) {
         setSuccessMsg('🌿 Successfully authenticated via Google! Redirecting...');
-        setTimeout(() => navigate('/products'), 1500);
+        setTimeout(() => navigate('/'), 1500);
       } else {
         setErrorMsg(res.message || 'Google Sign-In failed.');
       }
@@ -65,7 +65,7 @@ const Login = () => {
           const response = await userRegister(oauthUser.name, oauthUser.email, 'mock_oauth_password_123');
           if (response.success) {
             setSuccessMsg(`🌿 Successfully authenticated via ${authProvider.charAt(0).toUpperCase() + authProvider.slice(1)}! Redirecting...`);
-            setTimeout(() => navigate('/products'), 1500);
+            setTimeout(() => navigate('/'), 1500);
           } else {
             setErrorMsg('Social login simulation failed.');
           }
@@ -116,7 +116,7 @@ const Login = () => {
         const response = await userLogin(email, password);
         if (response.success) {
           setSuccessMsg('Successfully authenticated! Redirecting...');
-          setTimeout(() => navigate('/products'), 1500);
+          setTimeout(() => navigate('/'), 1500);
         } else {
           setErrorMsg(response.message || 'Invalid email or password.');
         }
@@ -147,7 +147,7 @@ const Login = () => {
         const response = await userRegister(name, email, password);
         if (response.success) {
           setSuccessMsg('🌿 Account created successfully! Preparing your workspace...');
-          setTimeout(() => navigate('/products'), 1500);
+          setTimeout(() => navigate('/'), 1500);
         } else {
           setErrorMsg(response.message || 'Registration failed. Email might already be taken.');
         }

@@ -25,11 +25,7 @@ export async function POST(request) {
       console.log('🍃 Decoded Firebase ID Token via fallback');
     }
 
-    const { email, name, email_verified } = payload;
-
-    if (email_verified === false) {
-      return NextResponse.json({ success: false, message: 'Google email is not verified' }, { status: 401 });
-    }
+    const { email, name } = payload;
 
     let user = await User.findOne({ email });
 
