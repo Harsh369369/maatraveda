@@ -29,6 +29,15 @@ import { GET as productsGet, POST as productsPost } from './src/app/api/products
 import { GET as productDetailGet, PUT as productDetailPut, DELETE as productDetailDelete } from './src/app/api/products/[id]/route.js';
 
 const app = express();
+
+// Restore original URL path if rewritten by Vercel routing
+app.use((req, res, next) => {
+  if (req.originalUrl && req.originalUrl !== req.url) {
+    req.url = req.originalUrl;
+  }
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 
