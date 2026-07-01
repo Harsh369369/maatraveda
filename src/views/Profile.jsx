@@ -25,17 +25,6 @@ const Profile = () => {
     }
   }, [userIsAuthenticated, userLoading, navigate]);
 
-  if (userLoading) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 flex items-center justify-center font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <Loader className="h-8 w-8 text-mv-olive animate-spin" />
-          <p className="text-xs font-bold text-mv-dark-green/40">Aligning energy...</p>
-        </div>
-      </div>
-    );
-  }
-
   const [activeSection, setActiveSection] = useState('main'); // main, appearance, profile, address, orders, track
   const [isDark, setIsDark] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -97,6 +86,17 @@ const Profile = () => {
       localStorage.setItem('theme', 'light');
     }
   };
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="h-8 w-8 text-mv-olive animate-spin" />
+          <p className="text-xs font-bold text-mv-dark-green/40">Aligning energy...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogoutClick = () => {
     userLogout();
