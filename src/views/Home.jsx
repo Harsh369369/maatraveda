@@ -139,23 +139,31 @@ const Home = () => {
   };
 
   return (
-    <div className="space-y-5 md:space-y-8 pb-12 select-none">
+    <div className="space-y-5 md:space-y-8 pb-28 md:pb-12 select-none">
       
       {/* ========================================================================= */}
       {/* 1. MOBILE HEADER - Location Picker, Heart & Profile Avatar (Figma Mockup) */}
       {/* ========================================================================= */}
       <div className="md:hidden flex items-center justify-between px-6 pt-4 bg-cream">
-        <div className="flex items-center gap-2 text-left">
+        <Link 
+          to={userIsAuthenticated ? '/profile' : '/login'} 
+          state={userIsAuthenticated ? { section: 'address', fromHome: true } : { from: '/' }}
+          className="flex items-center gap-2 text-left cursor-pointer hover:opacity-80 transition-opacity"
+        >
           <div className="p-2 bg-mv-olive/10 text-mv-olive rounded-full">
             <MapPin className="h-4.5 w-4.5 stroke-[2.5]" />
           </div>
           <div>
-            <span className="text-[10px] font-sans font-black text-charcoal/40 uppercase block leading-none">Home</span>
+            <span className="text-[10px] font-sans font-black text-charcoal/40 uppercase block leading-none">
+              {userIsAuthenticated ? 'Deliver to' : 'Home'}
+            </span>
             <span className="text-xs font-sans font-black text-mv-dark-green truncate max-w-[180px] block mt-0.5">
-              Amarapali Golf Homes, Noida
+              {userIsAuthenticated && user
+                ? (user.address || user.city || 'Add Delivery Address')
+                : 'Amarapali Golf Homes, Noida'}
             </span>
           </div>
-        </div>
+        </Link>
         
         <div className="flex items-center gap-2.5">
           {/* Notifications/Heart */}

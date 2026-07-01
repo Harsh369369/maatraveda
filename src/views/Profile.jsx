@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from '../utils/router-compat';
+import { Link, useNavigate, useLocation } from '../utils/router-compat';
 import { useAuth } from '../context/AuthContext';
 import { 
   User, MapPin, Lock, Package, Truck, Phone, AlertTriangle, 
@@ -17,6 +17,7 @@ const INDIAN_STATES = [
 const Profile = () => {
   const { user, userIsAuthenticated, userLoading, userLogout, userUpdateProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Redirect to login if guest
   useEffect(() => {
@@ -25,12 +26,13 @@ const Profile = () => {
     }
   }, [userIsAuthenticated, userLoading, navigate]);
 
-  const [activeSection, setActiveSection] = useState('main'); // main, appearance, profile, address, orders, track
+  const [activeSection, setActiveSection] = useState(location.state?.section || 'main'); // main, appearance, profile, address, orders, track
   const [isDark, setIsDark] = useState(false);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchOrderId, setSearchOrderId] = useState('');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
 
   // Forms
   const [profileData, setProfileData] = useState({
@@ -175,6 +177,9 @@ const Profile = () => {
         if (type === 'password') {
           setProfileData(prev => ({ ...prev, password: '', confirmPassword: '' }));
         }
+        if (type === 'address') {
+          setIsEditingAddress(false);
+        }
       } else {
         setErrorMsg(res.message || 'Action failed');
       }
@@ -185,13 +190,41 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAddress = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    setUpdating(true);
+    try {
+      const payload = { address: '', city: '', state: 'Karnataka', pincode: '' };
+      const res = await userUpdateProfile(payload);
+      if (res.success) {
+        setSuccessMsg('Delivery address deleted successfully!');
+        setProfileData(prev => ({
+          ...prev,
+          address: '',
+          city: '',
+          state: 'Karnataka',
+          pincode: ''
+        }));
+      } else {
+        setErrorMsg(res.message || 'Failed to delete address.');
+      }
+    } catch (err) {
+      setErrorMsg('Connection error. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const navigateToSection = (section) => {
     setErrorMsg('');
     setSuccessMsg('');
     setActiveSection(section);
+    setIsEditingAddress(false); // reset editing state
     if (section === 'orders' || section === 'track') {
       fetchUserOrders();
     }
+    navigate('/profile', { state: { section } });
   };
 
   // Helper to get formatted status color
@@ -205,16 +238,22 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 pb-24 font-sans select-none transition-colors duration-300">
+    <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 font-sans select-none transition-colors duration-300">
       <div className="max-w-md mx-auto bg-[#F8FAFC] min-h-screen flex flex-col justify-between relative shadow-lg border-x border-mv-dark-green/5 p-6">
         
-        <div className="space-y-6 flex-grow pb-16">
+        <div className="space-y-6 flex-grow pb-28">
           
           {/* HEADER BACK NAVIGATION BAR */}
           {activeSection !== 'main' && (
             <div className="flex items-center gap-3 pt-2">
               <button 
-                onClick={() => setActiveSection('main')}
+                onClick={() => {
+                  if (location.state?.fromHome) {
+                    navigate('/');
+                  } else {
+                    navigateToSection('main');
+                  }
+                }}
                 className="w-10 h-10 rounded-full bg-white border border-mv-dark-green/5 shadow-sm flex items-center justify-center text-mv-dark-green hover:bg-mv-input-bg transition-colors cursor-pointer"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -523,67 +562,153 @@ const Profile = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="bg-white rounded-[2rem] p-5.5 border border-mv-dark-green/5 shadow-sm space-y-4">
-                  <h3 className="text-xs font-black uppercase text-mv-dark-green/50 tracking-wider">Default Delivery Address</h3>
-                  
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-charcoal/60">Street Address</label>
-                    <textarea 
-                      value={profileData.address} 
-                      onChange={(e) => setProfileData(prev => ({ ...prev, address: e.target.value }))}
-                      rows="3"
-                      placeholder="Apartment name, building, street address"
-                      className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green resize-none"
-                    ></textarea>
-                  </div>
+                <>
+                  {!isEditingAddress ? (
+                    <div className="space-y-4">
+                      {user.address ? (
+                        <div className="bg-white rounded-[2rem] p-6 border border-mv-dark-green/5 shadow-md space-y-4 relative overflow-hidden text-left animate-fade-in">
+                          <div className="flex items-center justify-between border-b border-mv-dark-green/5 pb-3">
+                            <span className="text-[10px] font-black uppercase text-mv-dark-green/45 tracking-wider">Saved Address</span>
+                            <span className="flex items-center gap-1 text-[10px] font-black text-mv-olive bg-mv-olive/10 px-2 py-0.5 rounded-full uppercase">
+                              <MapPin className="h-3 w-3" /> Default
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-2 font-sans">
+                            <p className="text-sm font-black text-mv-dark-green leading-snug">{user.name}</p>
+                            <p className="text-xs font-bold text-charcoal/70 leading-relaxed whitespace-pre-wrap">{user.address}</p>
+                            <p className="text-xs font-black text-mv-dark-green">{user.city}, {user.state} - {user.pincode}</p>
+                          </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-charcoal/60">City</label>
-                      <input 
-                        type="text" 
-                        value={profileData.city} 
-                        onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
-                        placeholder="Bengaluru"
-                        className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green"
-                      />
+                          <div className="flex items-center gap-3 pt-2">
+                            <button
+                              onClick={() => {
+                                setProfileData(prev => ({
+                                  ...prev,
+                                  address: user.address || '',
+                                  city: user.city || '',
+                                  state: user.state || 'Karnataka',
+                                  pincode: user.pincode || ''
+                                }));
+                                setIsEditingAddress(true);
+                              }}
+                              className="flex-1 bg-mv-olive/10 text-mv-olive hover:bg-mv-olive/20 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-colors cursor-pointer text-center font-sans border-0"
+                            >
+                              Edit Address
+                            </button>
+                            <button
+                              onClick={handleDeleteAddress}
+                              disabled={updating}
+                              className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-colors cursor-pointer text-center font-sans border-0 disabled:opacity-50"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-white rounded-[2rem] p-8 text-center space-y-5 border border-mv-dark-green/5 shadow-sm">
+                          <div className="w-12 h-12 bg-mv-olive/10 text-mv-olive rounded-full flex items-center justify-center mx-auto">
+                            <MapPin className="h-6 w-6 stroke-[2]" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <h4 className="text-sm font-black text-mv-dark-green">No Saved Address</h4>
+                            <p className="text-xs text-charcoal/50 leading-relaxed">
+                              You haven't saved any delivery address yet. Add one now for faster checkouts.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setProfileData(prev => ({
+                                ...prev,
+                                address: '',
+                                city: '',
+                                state: 'Karnataka',
+                                pincode: ''
+                              }));
+                              setIsEditingAddress(true);
+                            }}
+                            className="inline-block px-8 py-3.5 bg-mv-olive text-cream rounded-full font-bold text-xs uppercase tracking-wider hover:bg-mv-deep-green transition-colors cursor-pointer border-0"
+                          >
+                            + Add Delivery Address
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-charcoal/60">Pincode</label>
-                      <input 
-                        type="text" 
-                        value={profileData.pincode} 
-                        onChange={(e) => setProfileData(prev => ({ ...prev, pincode: e.target.value.replace(/\D/g, '') }))}
-                        placeholder="560001"
-                        maxLength="6"
-                        className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green"
-                      />
+                  ) : (
+                    <div className="bg-white rounded-[2rem] p-5.5 border border-mv-dark-green/5 shadow-sm space-y-4 text-left">
+                      <h3 className="text-xs font-black uppercase text-mv-dark-green/50 tracking-wider">
+                        {user.address ? 'Edit Delivery Address' : 'Add Delivery Address'}
+                      </h3>
+                      
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-charcoal/60">Street Address</label>
+                        <textarea 
+                          value={profileData.address} 
+                          onChange={(e) => setProfileData(prev => ({ ...prev, address: e.target.value }))}
+                          rows="3"
+                          placeholder="Apartment name, building, street address"
+                          className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green resize-none"
+                        ></textarea>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-charcoal/60">City</label>
+                          <input 
+                            type="text" 
+                            value={profileData.city} 
+                            onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
+                            placeholder="Bengaluru"
+                            className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-charcoal/60">Pincode</label>
+                          <input 
+                            type="text" 
+                            value={profileData.pincode} 
+                            onChange={(e) => setProfileData(prev => ({ ...prev, pincode: e.target.value.replace(/\D/g, '') }))}
+                            placeholder="560001"
+                            maxLength="6"
+                            className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-charcoal/60">State</label>
+                        <select
+                          value={profileData.state}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, state: e.target.value }))}
+                          className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green appearance-none cursor-pointer"
+                        >
+                          {INDIAN_STATES.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-3 pt-2">
+                        <button
+                          onClick={() => handleUpdate('address')}
+                          disabled={updating}
+                          className="flex-1 bg-mv-olive text-cream hover:bg-mv-deep-green py-3.5 rounded-full shadow-sm text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 border-0"
+                        >
+                          {updating ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                          Save Address
+                        </button>
+                        <button
+                          onClick={() => setIsEditingAddress(false)}
+                          disabled={updating}
+                          className="flex-1 bg-mv-input-bg text-charcoal/60 hover:bg-charcoal/5 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center font-sans border-0"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-charcoal/60">State</label>
-                    <select
-                      value={profileData.state}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, state: e.target.value }))}
-                      className="w-full bg-mv-input-bg/70 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mv-olive font-bold text-mv-dark-green appearance-none cursor-pointer"
-                    >
-                      {INDIAN_STATES.map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button
-                    onClick={() => handleUpdate('address')}
-                    disabled={updating}
-                    className="w-full bg-mv-olive text-cream hover:bg-mv-deep-green py-3.5 rounded-full shadow-sm text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50"
-                  >
-                    {updating ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Save Shipping Address
-                  </button>
-                </div>
+                  )}
+                </>
               )}
             </div>
           )}

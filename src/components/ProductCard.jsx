@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { ShoppingCart, Eye, Sparkles } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, cartItems } = useCart();
+  const { addToCart, cartItems, updateQuantity } = useCart();
 
   const {
     _id,
@@ -104,11 +104,11 @@ const ProductCard = ({ product }) => {
         <div className="space-y-4 pt-2 border-t border-forest/5">
           
           {/* Pricing Row */}
-          <div className="flex items-baseline justify-between">
-            <div className="flex items-baseline gap-2">
-              <span className="font-sans text-lg font-bold text-forest">₹{price}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col text-left">
+              <span className="font-sans text-base font-bold text-forest leading-none">₹{price}</span>
               {mrp > price && (
-                <span className="font-sans text-xs line-through text-charcoal/40">₹{mrp}</span>
+                <span className="font-sans text-[10px] line-through text-charcoal/45 mt-1 block">₹{mrp}</span>
               )}
             </div>
             <span className="text-[10px] font-sans text-forest/50 font-bold uppercase tracking-tight">
@@ -134,16 +134,27 @@ const ProductCard = ({ product }) => {
           ) : (
             <div className="flex gap-2">
               {cartQty > 0 ? (
-                <Link
-                  to="/cart"
-                  className="flex-grow bg-mv-dark-green text-cream hover:bg-[#082200] font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5"
-                >
-                  <ShoppingCart className="h-4 w-4" /> Go to Cart
-                </Link>
+                <div className="flex-grow flex items-center justify-between border border-forest/15 rounded-lg bg-cream overflow-hidden h-[42px] select-none">
+                  <button
+                    onClick={() => updateQuantity(_id, cartQty - 1)}
+                    className="px-3 h-full hover:bg-forest/5 text-forest font-bold text-sm border-0 flex items-center justify-center cursor-pointer"
+                  >
+                    -
+                  </button>
+                  <span className="text-xs font-black font-sans text-forest">
+                    {cartQty}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(_id, cartQty + 1)}
+                    className="px-3 h-full hover:bg-forest/5 text-forest font-bold text-sm border-0 flex items-center justify-center cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={() => addToCart(product, 1)}
-                  className="flex-grow bg-forest text-cream hover:bg-leaf font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5"
+                  className="flex-grow bg-forest text-cream hover:bg-leaf font-sans text-xs font-bold py-3 px-4 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 border-0 cursor-pointer"
                 >
                   <ShoppingCart className="h-4 w-4" /> Add To Cart
                 </button>

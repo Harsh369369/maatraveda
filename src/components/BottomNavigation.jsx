@@ -1,15 +1,23 @@
 'use client';
 import React from 'react';
-import { usePathname, useRouter } from '../utils/router-compat';
+import { usePathname, useRouter, useLocation } from '../utils/router-compat';
 import { Home, ShoppingCart, Heart, User } from 'lucide-react';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const location = useLocation();
 
   // Show bottom nav ONLY on the main tab pages
   const allowedPaths = ['/', '/profile', '/products', '/wishlist'];
   if (!allowedPaths.includes(pathname)) {
+    return null;
+  }
+
+  // Hide bottom navigation if specifically on the profile address section
+  const searchParams = new URLSearchParams(location.search);
+  const activeSection = location.state?.section || searchParams.get('section');
+  if (pathname === '/profile' && activeSection === 'address') {
     return null;
   }
 

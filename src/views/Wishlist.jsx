@@ -42,7 +42,7 @@ const Wishlist = () => {
   };
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 select-none text-left ${wishlistItems.length === 0 ? 'h-[calc(100vh-160px)] overflow-hidden flex flex-col' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 md:pb-6 select-none text-left ${wishlistItems.length === 0 ? 'h-[calc(100vh-160px)] overflow-hidden flex flex-col' : ''}`}>
       
       {/* Page Header */}
       <div className="border-b border-mv-dark-green/10 pb-4 mb-6 space-y-1 shrink-0">

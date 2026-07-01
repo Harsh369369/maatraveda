@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle } from 'lucide-react';
 import { orderServices } from '../services/api';
@@ -26,6 +26,17 @@ const CartDrawer = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    if (cartOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [cartOpen]);
 
   // Shipping Calculations
   const shippingThreshold = 499;
@@ -152,7 +163,7 @@ const CartDrawer = () => {
           </div>
 
           {/* Core Body Section (Step 1: Items, Step 2: Form) */}
-          <div className="flex-grow overflow-y-auto p-6 space-y-6">
+          <div className="flex-grow overflow-y-auto p-6 space-y-6 overscroll-contain">
             
             {/* STEP 1: ITEM LISTING */}
             {step === 1 && (

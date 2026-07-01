@@ -31,8 +31,8 @@ export default function ClientLayoutWrapper({ children }) {
         <Navbar />
       </div>
       
-      {/* Main Page Content Body with padding-bottom on mobile for floating navigation */}
-      <main className={`flex-grow ${showBottomNav ? 'pb-24 md:pb-0' : ''}`}>
+      {/* Main Page Content Body */}
+      <main className="flex-grow">
         {children}
       </main>
       

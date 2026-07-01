@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from '../utils/router-compat';
 import { useAuth } from '../context/AuthContext';
-import { ShieldAlert, ArrowRight, CheckCircle, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { ShieldAlert, ArrowRight, CheckCircle, Eye, EyeOff, Mail, Lock, User, Loader } from 'lucide-react';
 import { auth, googleProvider, signInWithPopup } from '../firebase.js';
 
 const Login = () => {
@@ -25,6 +25,17 @@ const Login = () => {
       navigate(fromPath);
     }
   }, [userIsAuthenticated, userLoading, navigate, location]);
+
+  if (userLoading) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center bg-cream/10 font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="h-8 w-8 text-mv-olive animate-spin" />
+          <p className="text-xs font-bold text-mv-dark-green/40">Aligning energy...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle Google Firebase Auth login
   const handleGoogleSignIn = async () => {

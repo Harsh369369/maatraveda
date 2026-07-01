@@ -64,7 +64,7 @@ const Products = () => {
   });
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-28 md:pb-16">
       
       {/* 1. Category Tabs Bar Component */}
       <CategoryFilter

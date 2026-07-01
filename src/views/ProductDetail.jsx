@@ -107,7 +107,7 @@ const ProductDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 pb-16 font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] md:bg-cream/10 font-sans">
       <div className="max-w-md mx-auto bg-[#F8FAFC] min-h-screen flex flex-col justify-between relative shadow-lg border-x border-mv-dark-green/5">
         
         {/* ========================================== */}

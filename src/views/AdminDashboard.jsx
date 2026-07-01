@@ -39,6 +39,17 @@ const AdminDashboard = () => {
   // Modal / Form States for Products (Add/Edit)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editProductId, setEditProductId] = useState(null); // null for Add, ID for Edit
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isModalOpen]);
   const [productForm, setProductForm] = useState({
     name: '',
     description: '',
@@ -528,7 +539,7 @@ const AdminDashboard = () => {
         <div className="fixed inset-0 z-50 overflow-y-auto font-sans flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-charcoal/40 backdrop-blur-[2px]" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-cream border border-forest/10 p-5 sm:p-8 rounded-3xl shadow-2xl space-y-6 text-left animate-slide-in max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-cream border border-forest/10 p-5 sm:p-8 rounded-3xl shadow-2xl space-y-6 text-left animate-slide-in max-h-[90vh] overflow-y-auto overscroll-contain">
             
             <button
               onClick={() => setIsModalOpen(false)}
