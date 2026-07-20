@@ -168,7 +168,7 @@ const Home = () => {
   };
 
   return (
-    <div className="space-y-6 md:space-y-12 pb-24 select-none">
+    <div className="space-y-2 md:space-y-12 pb-12 select-none">
       {/* 1. MOBILE HEADER - Location Picker, Heart & Profile Avatar */}
       <HomeHeader user={user} userIsAuthenticated={userIsAuthenticated} />
 
