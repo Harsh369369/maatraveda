@@ -26,17 +26,6 @@ const Login = () => {
     }
   }, [userIsAuthenticated, userLoading, navigate, location]);
 
-  if (userLoading) {
-    return (
-      <div className="min-h-[85vh] flex items-center justify-center bg-cream/10 font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <Loader className="h-8 w-8 text-mv-olive animate-spin" />
-          <p className="text-xs font-bold text-mv-dark-green/40">Aligning energy...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Handle Google Firebase Auth login
   const handleGoogleSignIn = async () => {
     setSubmitting(true);
@@ -90,6 +79,17 @@ const Login = () => {
     window.addEventListener('message', handleOAuthMessage);
     return () => window.removeEventListener('message', handleOAuthMessage);
   }, [navigate, userRegister]);
+
+  if (userLoading) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center bg-cream/10 font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="h-8 w-8 text-mv-olive animate-spin" />
+          <p className="text-xs font-bold text-mv-dark-green/40">Aligning energy...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSocialLogin = (provider) => {
     const width = 500;

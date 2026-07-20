@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from '../utils/router-compat';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingBag, Menu, X, Leaf, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, LogOut, Search, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   const { cartCount, setCartOpen } = useCart();
@@ -23,12 +23,12 @@ const Navbar = () => {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Wellness Products', path: '/products' },
+    { name: 'Shop', path: '/products', hasDropdown: true },
     { name: 'Find Your Dosha', path: '/dosha-quiz' },
-    { name: 'Learn Ayurveda', path: '/blog' },
+    { name: 'Best Sellers', path: '/products' },
+    { name: 'Learn Ayurveda', path: '/blog', hasDropdown: true },
     { name: 'Our Story', path: '/about' },
-    { name: 'Connect', path: '/contact' }
+    { name: 'Contact', path: '/contact' }
   ];
 
   const handleAdminLogout = () => {
@@ -43,27 +43,46 @@ const Navbar = () => {
 
           {/* Brand Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <span className="font-sans text-2xl md:text-3xl font-black tracking-[0.18em] text-mv-dark-green group-hover:text-mv-olive transition-colors duration-300 uppercase">
-                MAATRAVEDA
-              </span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <svg className="w-9 h-9 text-[#5B7917] group-hover:text-mv-deep-green transition-colors shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="42" stroke="currentColor" strokeWidth="2.5"/>
+                <path d="M50 15C50 15 26 38 26 60C26 72 35 82 47 84" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M50 15C50 15 74 38 74 60C74 72 65 82 53 84" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M50 15V85" stroke="currentColor" strokeWidth="2.5"/>
+                <path d="M50 35C57 32 68 35 72 42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M50 48C57 45 68 48 72 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M50 62C57 59 66 62 69 68" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M50 35C43 32 32 35 28 42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M50 48C43 45 32 48 28 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M50 62C43 59 34 62 31 68" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <div className="flex flex-col text-left">
+                <span className="font-sans text-xl md:text-2xl font-black tracking-[0.16em] text-mv-dark-green group-hover:text-[#5B7917] transition-colors leading-none uppercase">
+                  MAATRAVEDA
+                </span>
+                <span className="font-sans text-[8px] font-bold tracking-[0.24em] text-[#5B7917]/80 group-hover:text-mv-deep-green transition-colors mt-0.5 leading-none uppercase">
+                  AYURVEDA REIMAGINED
+                </span>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className="font-sans text-sm font-semibold text-charcoal/80 hover:text-mv-olive transition-colors duration-200 relative group py-2"
+                className="font-sans text-[13px] font-semibold text-charcoal/90 hover:text-mv-olive transition-colors duration-200 relative group py-2 flex items-center gap-1"
               >
-                {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-mv-olive transition-all duration-300 group-hover:w-full"></span>
+                <span>{link.name}</span>
+                {link.hasDropdown && (
+                  <ChevronDown className="h-3.5 w-3.5 text-charcoal/45 group-hover:text-mv-olive transition-colors" />
+                )}
               </Link>
             ))}
 
-            {/* Customer Auth Profile or Login icon */}
+            {/* Customer Auth Profile or Login icon - integrated directly */}
             {userIsAuthenticated ? (
               <div className="flex items-center gap-2 text-xs font-sans font-bold text-mv-dark-green pl-4 border-l border-mv-dark-green/15">
                 <span>Namaste, {user.name}</span>
@@ -75,15 +94,7 @@ const Navbar = () => {
                   Sign Out
                 </button>
               </div>
-            ) : (
-              <Link
-                to="/login"
-                className="text-charcoal/60 hover:text-mv-olive transition-colors pl-4 border-l border-mv-dark-green/15"
-                title="Customer Sign In"
-              >
-                <User className="h-5 w-5" />
-              </Link>
-            )}
+            ) : null}
 
             {/* Admin specific link */}
             {isAuthenticated && (
@@ -106,20 +117,55 @@ const Navbar = () => {
           </div>
 
           {/* Right Action Icons (Cart & Mobile Hamburger) */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5">
+            
+            {/* Search Icon (Desktop only) */}
+            <button 
+              onClick={() => {
+                const searchInput = document.getElementById('desktop-search-input');
+                if (searchInput) {
+                  searchInput.focus();
+                  searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                  navigate('/products');
+                }
+              }}
+              className="hidden md:block text-charcoal/85 hover:text-mv-olive transition-colors cursor-pointer"
+              title="Search Products"
+            >
+              <Search className="h-5 w-5 stroke-[2]" />
+            </button>
+
+            {/* Profile silhouette icon */}
+            {!userIsAuthenticated && (
+              <Link
+                to="/login"
+                className="hidden md:block text-charcoal/85 hover:text-mv-olive transition-colors"
+                title="Customer Sign In"
+              >
+                <User className="h-5 w-5 stroke-[2]" />
+              </Link>
+            )}
+            {userIsAuthenticated && (
+              <Link
+                to="/profile"
+                className="hidden md:block text-charcoal/85 hover:text-mv-olive transition-colors"
+                title="Profile"
+              >
+                <User className="h-5 w-5 stroke-[2]" />
+              </Link>
+            )}
 
             {/* Shopping Bag Icon with Badge */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative p-2.5 rounded-full hover:bg-mv-olive/5 text-mv-dark-green hover:text-mv-olive transition-all duration-300 group"
+              className="relative p-1.5 rounded-full text-charcoal/85 hover:text-mv-olive transition-all group cursor-pointer"
               aria-label="Open Cart"
             >
-              <ShoppingBag className="h-6 w-6 stroke-[2px] group-hover:scale-110 transition-transform duration-300" />
-              {cartCount > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-cream bg-terracotta rounded-full scale-95 border-2 border-cream animate-bounce">
-                  {cartCount}
-                </span>
-              )}
+              <ShoppingBag className="h-5.5 w-5.5 stroke-[2]" />
+              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold text-cream bg-[#305700] rounded-full border border-cream">
+                {cartCount}
+              </span>
             </button>
 
             {/* Mobile Menu Button */}

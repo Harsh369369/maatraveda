@@ -11,8 +11,6 @@ import ProductDetail from './views/ProductDetail';
 import About from './views/About';
 import Contact from './views/Contact';
 import Login from './views/Login';
-import AdminLogin from './views/AdminLogin';
-import AdminDashboard from './views/AdminDashboard';
 import DoshaQuiz from './views/DoshaQuiz';
 import Blog from './views/Blog';
 import BlogPost from './views/BlogPost';
@@ -36,8 +34,6 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/dosha-quiz" element={<DoshaQuiz />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />

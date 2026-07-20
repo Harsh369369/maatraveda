@@ -11,12 +11,23 @@ import BottomNavigation from './BottomNavigation';
 export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
   const isOnboarding = pathname === '/onboarding';
+  const isAdmin = pathname.startsWith('/admin');
   
   // Show bottom nav ONLY on these main tab paths
   const showBottomNav = ['/', '/profile', '/products', '/wishlist'].includes(pathname);
 
   if (isOnboarding) {
     return <>{children}</>;
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#FDFBF7] text-charcoal font-sans selection:bg-mv-olive/25 selection:text-mv-dark-green">
+        <main className="flex-grow">
+          {children}
+        </main>
+      </div>
+    );
   }
 
   return (

@@ -329,133 +329,301 @@ const setOrdersDb = (orders) => setLocalData('mv_db_orders', orders);
 const getSubscribersDb = () => getLocalData('mv_db_subscribers', []);
 const setSubscribersDb = (subs) => setLocalData('mv_db_subscribers', subs);
 
+const getAdminHeaders = () => {
+  const token = localStorage.getItem('matree_admin_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
+
 export const productServices = {
   // Get all products, optionally filter by category
   getAllProducts: async (category = 'all') => {
-    const products = getProductsDb();
-    const filtered = category === 'all' 
-      ? products 
-      : products.filter(p => p.category === category);
-    return { success: true, products: filtered };
+    try {
+      const url = category === 'all' ? '/api/products' : `/api/products?category=${category}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to fetch products from server');
+    } catch (err) {
+      console.warn('getAllProducts from server failed, using localStorage fallback:', err.message);
+      const products = getProductsDb();
+      const filtered = category === 'all' 
+        ? products 
+        : products.filter(p => p.category === category);
+      return { success: true, products: filtered, isMocked: true };
+    }
   },
 
   // Get details of a single product
   getProductById: async (id) => {
-    const products = getProductsDb();
-    const product = products.find(p => p._id === id) || products[0];
-    return { success: true, product };
+    try {
+      const res = await fetch(`/api/products/${id}`);
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to fetch product detail from server');
+    } catch (err) {
+      console.warn(`getProductById (${id}) failed, using localStorage fallback:`, err.message);
+      const products = getProductsDb();
+      const product = products.find(p => p._id === id) || products[0];
+      return { success: true, product, isMocked: true };
+    }
   },
 
   // Create a new product (Admin protected)
   createProduct: async (productData) => {
-    const products = getProductsDb();
-    const newProduct = {
-      _id: 'prod_' + Math.random().toString(36).substring(2, 9),
-      rating: 4.5,
-      reviewsCount: 1,
-      ritualStory: 'Mock story for ' + productData.name,
-      ...productData,
-      ingredients: Array.isArray(productData.ingredients) 
-        ? productData.ingredients 
-        : productData.ingredients 
-          ? [productData.ingredients] 
-          : [],
-      benefits: Array.isArray(productData.benefits) 
-        ? productData.benefits 
-        : productData.benefits 
-          ? [productData.benefits] 
-          : []
-    };
-    products.push(newProduct);
-    setProductsDb(products);
-    return { success: true, product: newProduct };
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminHeaders()
+        },
+        body: JSON.stringify(productData)
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to create product on server');
+    } catch (err) {
+      console.warn('createProduct failed, using localStorage fallback:', err.message);
+      const products = getProductsDb();
+      const newProduct = {
+        _id: 'prod_' + Math.random().toString(36).substring(2, 9),
+        rating: 4.5,
+        reviewsCount: 1,
+        ritualStory: 'Mock story for ' + productData.name,
+        ...productData,
+        ingredients: Array.isArray(productData.ingredients) 
+          ? productData.ingredients 
+          : productData.ingredients ? [productData.ingredients] : [],
+        benefits: Array.isArray(productData.benefits) 
+          ? productData.benefits 
+          : productData.benefits ? [productData.benefits] : []
+      };
+      products.push(newProduct);
+      setProductsDb(products);
+      return { success: true, product: newProduct, isMocked: true };
+    }
   },
 
   // Update an existing product (Admin protected)
   updateProduct: async (id, productData) => {
-    const products = getProductsDb();
-    const index = products.findIndex(p => p._id === id);
-    if (index !== -1) {
-      products[index] = { ...products[index], ...productData };
-      setProductsDb(products);
-      return { success: true, product: products[index] };
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminHeaders()
+        },
+        body: JSON.stringify(productData)
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to update product on server');
+    } catch (err) {
+      console.warn(`updateProduct (${id}) failed, using localStorage fallback:`, err.message);
+      const products = getProductsDb();
+      const index = products.findIndex(p => p._id === id);
+      if (index !== -1) {
+        products[index] = { ...products[index], ...productData };
+        setProductsDb(products);
+        return { success: true, product: products[index], isMocked: true };
+      }
+      return { success: false, message: 'Product not found in fallback storage' };
     }
-    return { success: false, message: 'Product not found' };
   },
 
   // Delete a product (Admin protected)
   deleteProduct: async (id) => {
-    let products = getProductsDb();
-    products = products.filter(p => p._id !== id);
-    setProductsDb(products);
-    return { success: true, message: 'Product successfully deleted' };
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          ...getAdminHeaders()
+        }
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to delete product on server');
+    } catch (err) {
+      console.warn(`deleteProduct (${id}) failed, using localStorage fallback:`, err.message);
+      let products = getProductsDb();
+      products = products.filter(p => p._id !== id);
+      setProductsDb(products);
+      return { success: true, message: 'Product successfully deleted from fallback storage', isMocked: true };
+    }
   },
 };
 
 export const orderServices = {
   // Create a new order (Public)
   createOrder: async (orderData) => {
-    const orders = getOrdersDb();
-    const newOrder = {
-      _id: 'order_mock_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
-      createdAt: new Date().toISOString(),
-      status: 'pending',
-      ...orderData
-    };
-    orders.push(newOrder);
-    setOrdersDb(orders);
-    return { success: true, message: 'Order simulated successfully', order: newOrder };
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to create order on server');
+    } catch (err) {
+      console.warn('createOrder failed, using localStorage fallback:', err.message);
+      const orders = getOrdersDb();
+      const newOrder = {
+        _id: 'order_mock_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        ...orderData
+      };
+      orders.push(newOrder);
+      setOrdersDb(orders);
+      return { success: true, message: 'Order simulated in local storage successfully', order: newOrder, isMocked: true };
+    }
   },
 
   // Get all orders (Admin protected)
   getAllOrders: async () => {
-    return { success: true, count: getOrdersDb().length, orders: getOrdersDb() };
+    try {
+      const res = await fetch('/api/orders', {
+        headers: {
+          ...getAdminHeaders()
+        }
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to fetch orders from server');
+    } catch (err) {
+      console.warn('getAllOrders failed, using localStorage fallback:', err.message);
+      return { success: true, count: getOrdersDb().length, orders: getOrdersDb(), isMocked: true };
+    }
   },
 
   // Update order status (Admin protected)
   updateStatus: async (id, status) => {
-    const orders = getOrdersDb();
-    const index = orders.findIndex(o => o._id === id);
-    if (index !== -1) {
-      orders[index].status = status;
-      setOrdersDb(orders);
-      return { success: true, order: orders[index] };
+    try {
+      const res = await fetch(`/api/orders/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminHeaders()
+        },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to update order status on server');
+    } catch (err) {
+      console.warn(`updateStatus (${id}) failed, using localStorage fallback:`, err.message);
+      const orders = getOrdersDb();
+      const index = orders.findIndex(o => o._id === id);
+      if (index !== -1) {
+        orders[index].status = status;
+        setOrdersDb(orders);
+        return { success: true, order: orders[index], isMocked: true };
+      }
+      return { success: false, message: 'Order not found in fallback storage' };
     }
-    return { success: false, message: 'Order not found' };
   },
 };
 
 export const newsletterServices = {
   // Subscribe a new email to newsletter
   subscribe: async (email) => {
-    const subs = getSubscribersDb();
-    if (!subs.some(s => s.email === email)) {
-      subs.push({ email, subscribedAt: new Date().toISOString() });
-      setSubscribersDb(subs);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to subscribe on server');
+    } catch (err) {
+      console.warn('subscribe failed, using localStorage fallback:', err.message);
+      const subs = getSubscribersDb();
+      if (!subs.some(s => s.email === email)) {
+        subs.push({ email, subscribedAt: new Date().toISOString() });
+        setSubscribersDb(subs);
+      }
+      return { success: true, message: '🌿 Welcome to the Matriveda ritual! Your subscription is active in fallback storage.', isMocked: true };
     }
-    return { success: true, message: '🌿 Welcome to the Matriveda ritual! Your subscription is active.' };
   },
 
   // Get all newsletter subscribers (Admin protected)
   getAllSubscribers: async () => {
-    const subs = getSubscribersDb();
-    return { success: true, count: subs.length, subscribers: subs };
+    try {
+      const res = await fetch('/api/newsletter', {
+        headers: {
+          ...getAdminHeaders()
+        }
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to fetch subscribers from server');
+    } catch (err) {
+      console.warn('getAllSubscribers failed, using localStorage fallback:', err.message);
+      const subs = getSubscribersDb();
+      return { success: true, count: subs.length, subscribers: subs, isMocked: true };
+    }
   },
+};
+
+export const adminServices = {
+  // Get all registered users (Admin protected)
+  getAllUsers: async () => {
+    try {
+      const res = await fetch('/api/auth/users', {
+        headers: {
+          ...getAdminHeaders()
+        }
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to fetch customers from server');
+    } catch (err) {
+      console.warn('getAllUsers failed, using empty mock list:', err.message);
+      return { success: true, count: 0, users: [], isMocked: true };
+    }
+  }
 };
 
 export const paymentServices = {
   createOrder: async (amount) => {
-    return {
-      success: true,
-      order: {
-        id: 'order_pay_' + Math.random().toString(36).substring(2, 9),
-        amount: amount * 100,
-        currency: 'INR'
-      }
-    };
+    try {
+      const res = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to create payment order on server');
+    } catch (err) {
+      console.warn('createOrder for payment failed, using simulation:', err.message);
+      return {
+        success: true,
+        order: {
+          id: 'order_pay_' + Math.random().toString(36).substring(2, 9),
+          amount: amount * 100,
+          currency: 'INR'
+        },
+        simulated: true
+      };
+    }
   },
   verifyPayment: async (details) => {
-    return { success: true, message: 'Payment verified successfully via client-side simulation' };
+    try {
+      const res = await fetch('/api/payments/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(details)
+      });
+      const data = await res.json();
+      if (data.success) return data;
+      throw new Error(data.message || 'Failed to verify payment on server');
+    } catch (err) {
+      console.warn('verifyPayment failed, using simulation:', err.message);
+      return { success: true, message: 'Payment verified successfully via client-side simulation', simulated: true };
+    }
   }
 };
 
